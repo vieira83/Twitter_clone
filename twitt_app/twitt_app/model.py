@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 import hashlib
  
  
-class Ribbit(models.Model):
+class Twit(models.Model):
     content = models.CharField(max_length=140)
     user = models.ForeignKey(User)
     creation_date = models.DateTimeField(auto_now=True, blank=True)

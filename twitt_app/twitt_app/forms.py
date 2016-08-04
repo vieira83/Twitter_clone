@@ -36,3 +36,18 @@ class AuthenticateForm(AuthenticationForm):
             if f != '__all__':
                 self.fields[f].widget.attrs.update({'class': 'error', 'value': strip_tags(error)})
         return form
+
+
+class TwitForm(forms.ModelForm):
+    content = forms.CharField(required=True, widget=forms.widgets.Textarea(attrs={'class': 'twitText'}))
+ 
+    def is_valid(self):
+        form = super(TwitForm, self).is_valid()
+        for f in self.errors.iterkeys():
+            if f != '__all__':
+                self.fields[f].widget.attrs.update({'class': 'error twitText'})
+        return form
+ 
+    class Meta:
+        model = Twit
+        exclude = ('user',)

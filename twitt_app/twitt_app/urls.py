@@ -16,6 +16,10 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
-urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-]
+urlpatterns = patterns('',
+    # Examples:
+    url(r'^$', 'twitt_app.views.index'), # root
+    url(r'^login$', 'twitt_app.views.login_view'), # login
+    url(r'^logout$', 'twitt_app.views.logout_view'), # logout
+    url(r'^signup$', 'twitt_app.views.signup'), # signup
+)
