@@ -22,4 +22,5 @@ urlpatterns = patterns('',
     url(r'^login$', 'twitt_app.views.login_view'), # login
     url(r'^logout$', 'twitt_app.views.logout_view'), # logout
     url(r'^signup$', 'twitt_app.views.signup'), # signup
+    url(r'^submit$', 'twitt_app.views.submit'), # submit new twitt
 )
