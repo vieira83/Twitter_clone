@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from twitt_app.forms import AuthenticateForm, UserCreateForm, TwitForm
-from twitt_app.models import Twitt
+from twitt_app.models import Twit
 
 
 def index(request, auth_form=None, user_form=None):
@@ -79,10 +80,59 @@ def submit(request):
 
 
 @login_required
-def public(request, ribbit_form=None):
-    ribbit_form = ribbit_form or RibbitForm()
-    ribbits = Ribbit.objects.reverse()[:10]
+def public(request, twit_form=None):
+    twit_form = twit_form or TwitForm()
+    twits = twit.objects.reverse()[:10]
     return render(request,
                   'public.html',
-                  {'ribbit_form': ribbit_form, 'next_url': '/ribbits',
-                   'ribbits': ribbits, 'username': request.user.username})
+                  {'twit_form': twit_form, 'next_url': '/twits',
+                   'twits': twits, 'username': request.user.username})
+
+
+
+from django.db.models import Count
+from django.http import Http404
+ 
+ 
+def get_latest(user):
+    try:
+        return user.twit_set.order_by('-id')[0]
+    except IndexError:
+        return ""
+ 
+ 
+@login_required
+def users(request, username="", twit_form=None):
+    if username:
+        # Show a profile
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise Http404
+        twits = twit.objects.filter(user=user.id)
+        if username == request.user.username or request.user.profile.follows.filter(user__username=username):
+            # Self Profile or buddies' profile
+            return render(request, 'user.html', {'user': user, 'twits': twits, })
+        return render(request, 'user.html', {'user': user, 'twits': twits, 'follow': True, })
+    users = User.objects.all().annotate(twit_count=Count('twit'))
+    twits = map(get_latest, users)
+    obj = zip(users, twits)
+    twit_form = twit_form or twitForm()
+    return render(request,
+                  'profiles.html',
+                  {'obj': obj, 'next_url': '/users/',
+                   'twit_form': twit_form,
+
+
+@login_required
+def follow(request):
+    if request.method == "POST":
+        follow_id = request.POST.get('follow', False)
+        if follow_id:
+            try:
+                user = User.objects.get(id=follow_id)
+                request.user.profile.follows.add(user.profile)
+            except ObjectDoesNotExist:
+                return redirect('/users/')
+    return redirect('/users/')
+                   'username': request.user.username, })
